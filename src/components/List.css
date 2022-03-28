@@ -1,0 +1,57 @@
+.list{
+    width:250px;
+    background-color: beige;
+    margin:10px;
+    padding:10px;
+    display:inline-table;
+}
+.list .heading{
+    display: flex;
+    justify-content: space-between;
+}
+.list .heading textarea{
+    width:80%;
+    min-height:25px;
+    font-family: inherit;
+    background-color:inherit;
+    resize: none;
+    border:none;
+    padding-top:10px;
+    padding-left:10px;
+    font-weight: 900;
+    overflow-y: hidden;
+}
+.list .heading i{
+    color:gray;
+    cursor: pointer;
+}
+#save,#add{
+    border:none;
+    height:30px;
+    font-family: inherit;
+    font-size: 15px;
+    width:50px;
+    border-radius: 5px;
+    color:#fff;
+    background-color: #0079BF;
+}
+form>textarea{
+    width:100%;
+    min-height:25px;
+    font-family: inherit;
+    resize: none;
+    border:none;
+    margin-bottom:5px;
+}
+.list>button{
+    width:50%;
+    color:grey;
+    background-color:inherit;
+    font-size: 17px;
+    font-family: inherit;
+    border:none;
+}
+form{
+    background-color: #fff;
+    padding:5px;
+}
