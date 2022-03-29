@@ -7,21 +7,18 @@ const List = ({
   listName,
   handleDeleteList,
   showModal,
-  renderUI,
-  setRenderUI,
+  cards,
+  setCards
 }) => {
-  const [cards, setCards] = useState({});
   const [editListName, setEditListName] = useState(false);
   const [currListName, setCurrListName] = useState(listName);
   const [showNewCardForm, setShowNewCardForm] = useState(false);
   const [newCardName, setNewCardName] = useState("");
-  const [currCard, setCurrCard] = useState([]);
-
+  // const [currCard, setCurrCard] = useState([]);
   const getCardsOfAList = async () => {
     try {
       const { data } = await fetchCardsOfAList(listId);
-      // setCards({ ...cards, [listId]: data });
-       setCurrCard(data);
+      setCards(prevState=>({...prevState,[listId]:data}));
     } catch (err) {
       console.log(err);
     }
@@ -47,7 +44,7 @@ const List = ({
     try {
       e.preventDefault();
       const { data } = await createNewCard(listId, { name: newCardName });
-      setCurrCard([...currCard, data]);
+      setCards((prevState)=>({...prevState,[listId]:[...prevState[listId],data]}));
       setShowNewCardForm(!showNewCardForm);
       setNewCardName("");
     } catch (err) {
@@ -57,7 +54,6 @@ const List = ({
   useEffect(() => {
     getCardsOfAList(listId);
   }, []);
-  
   return (
     <div className="list" id={listId}>
       <div className="heading">
@@ -73,19 +69,16 @@ const List = ({
           onClick={() => handleDeleteList(listId)}
         ></i>
       </div>
-      {currCard.map((card, index) => (
+      {cards[listId]?.map((card, index) => (
         <Card
-          key={index}
+          key={card.id}
           cardId={card.id}
           title={card.name}
           description={card.desc}
           showModal={showModal}
           pos={card.pos}
-          currCard={currCard}
-          setCurrCard={setCurrCard}
           listId={card.idList}
-          setRenderUI={setRenderUI}
-          renderUI={renderUI}
+          setCards={setCards}
         />
       ))}
 

@@ -8,8 +8,7 @@ const Card = ({
   showModal,
   pos,
   listId,
-  setRenderUI,
-  renderUI,
+  setCards,
 }) => {
   const [showSaveButton, setShowSaveButton] = useState(false);
   const [showEditIcon, setShowEditIcon] = useState(false);
@@ -21,7 +20,6 @@ const Card = ({
     e.target.previousElementSibling.readOnly = showSaveButton;
     e.target.previousElementSibling.focus();
   };
-
   const updateCardTitle = async () => {
     try {
       const { data } = await updateCard(cardId, { name: cardTitle });
@@ -44,7 +42,20 @@ const Card = ({
     }
     return commentInfo;
   }
-
+  const insertDataAtCorrectPos = (state, data, pos) => {
+    state.pos = pos;
+    state.push(data);
+    state.sort((firstCard, secondCard) => {
+      if (firstCard.pos < secondCard.pos) {
+        return -1;
+      }
+      if (firstCard.pos > secondCard.pos) {
+        return 1;
+      }
+      return 0;
+    });
+    return state;
+  };
   const getComments = async () => {
     try {
       const { data } = await fetchActionsOfACard(cardId);
@@ -55,11 +66,13 @@ const Card = ({
   };
   const handleDragStart = (e) => {
     e.dataTransfer.setData("drag-item", e.target.id);
+    e.dataTransfer.setData("drag-list", listId);
   };
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     const cardId = e.dataTransfer.getData("drag-item");
     const prevElem = e.target.previousElementSibling;
     const nextElem = e.target.nextElementSibling;
+    const draggedListId = e.dataTransfer.getData("drag-list");
     let pos;
     if (!prevElem || prevElem.tagName != "LI") pos = "top";
     else if (!nextElem || nextElem.tagName != "LI") pos = "bottom";
@@ -70,14 +83,23 @@ const Card = ({
           2
       );
     }
-    swapCard(cardId, listId, pos).then((data) =>
-      setRenderUI((prevState) => !prevState)
-    );
+    const { data } = await swapCard(cardId, listId, pos);
+    setCards((prevState) => ({
+      ...prevState,
+      [listId]:
+        pos === "bottom"
+          ? [...prevState[listId], data]
+          : pos === "top"
+          ? [data, ...prevState[listId]]
+          : insertDataAtCorrectPos(prevState[listId], data, pos),
+      [draggedListId]: prevState[draggedListId]?.filter(
+        (currCard) => currCard.id !== cardId
+      ),
+    }));
   };
-
   useEffect(() => {
     getComments();
-  }, [renderUI]);
+  }, []);
   return (
     <li
       id={cardId}

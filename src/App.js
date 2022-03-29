@@ -4,9 +4,9 @@ import { fetchLists, deleteAList, fetchBoard, addList } from "./ApiCalls";
 import Modal from "./components/Modal";
 
 const App = () => {
-  const [lists, setLists] = useState([]);
+  const [lists, setLists] = useState();
+  const [cards, setCards] = useState({});
   const [form, toggleForm] = useState(false);
-  const [renderUI, setRenderUI] = useState(false);
   const [newListName, setNewListName] = useState("");
   const [modal, showModal] = useState({
     modalState: false,
@@ -15,7 +15,6 @@ const App = () => {
     modalDesc: "",
     modalComments: [],
   });
-
   const getLists = async () => {
     try {
       const { data } = await fetchLists();
@@ -29,8 +28,7 @@ const App = () => {
   const handleDeleteList = async (listId) => {
     try {
       const { data } = await deleteAList(listId);
-      const newList = lists.filter((list) => list.id != data.id);
-      setLists(newList);
+      setLists((prevLists)=>prevLists.filter(list=>list.id!==data.id));
     } catch (err) {
       console.log(err.message);
     }
@@ -48,21 +46,20 @@ const App = () => {
       console.log(err.message);
     }
   };
-
   useEffect(() => {
     getLists();
-  }, [renderUI]);
+  }, []);
   return (
     <div className="Board" style={styles}>
-      {lists.map((list, index) => (
+      {lists?.map((list, index) => (
         <List
-          key={index}
+          key={list.id}
           listId={list.id}
           listName={list.name}
           handleDeleteList={handleDeleteList}
           showModal={showModal}
-          setRenderUI={setRenderUI}
-          renderUI={renderUI}
+          cards={cards}
+          setCards={setCards}
         />
       ))}
       <div className="addNewList">
@@ -103,7 +100,6 @@ export default App;
 const styles = {
   padding: "10px",
   fontFamily: "'Ubuntu', sans-serif",
-  // display: "flex",
   position: "relative",
 };
 
