@@ -8,7 +8,7 @@ const List = ({
   handleDeleteList,
   showModal,
   cards,
-  setCards
+  setCards,
 }) => {
   const [editListName, setEditListName] = useState(false);
   const [currListName, setCurrListName] = useState(listName);

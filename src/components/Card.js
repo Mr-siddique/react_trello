@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { updateCard, fetchActionsOfACard, swapCard } from "../ApiCalls";
+import {
+  updateCard,
+  fetchActionsOfACard,
+  swapCard,
+  getChecklist,
+} from "../ApiCalls";
 import "./Card.css";
 const Card = ({
   cardId,
@@ -14,7 +19,7 @@ const Card = ({
   const [showEditIcon, setShowEditIcon] = useState(false);
   const [cardTitle, setCardTitle] = useState(title);
   const [comments, setComments] = useState([]);
-
+  const [checkList, setCheckList] = useState([]);
   const handleClick = (e) => {
     setShowSaveButton(!showSaveButton);
     e.target.previousElementSibling.readOnly = showSaveButton;
@@ -64,6 +69,37 @@ const Card = ({
       console.log(err);
     }
   };
+  const getRequiredDataFromCheckList = (data) => {
+    return data?.reduce((acc, curr) => {
+      return [
+        ...acc,
+        {
+          checkListId: curr.id,
+          checkListName: curr.name,
+          checkListItems: curr.checkItems?.reduce((acc, Curr) => {
+            return [
+              ...acc,
+              {
+                id: Curr.id,
+                name: Curr.name,
+                isCompleted: Curr.state === "incomplete" ? false : true,
+                checkListId: curr.id,
+              },
+            ];
+          }, []),
+        },
+      ];
+    }, []);
+  };
+  const getChecklistOfThisCard = async () => {
+    try {
+      const { data } = await getChecklist(cardId);
+      const checkListData = getRequiredDataFromCheckList(data);
+      setCheckList(checkListData);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleDragStart = (e) => {
     e.dataTransfer.setData("drag-item", e.target.id);
     e.dataTransfer.setData("drag-list", listId);
@@ -99,6 +135,7 @@ const Card = ({
   };
   useEffect(() => {
     getComments();
+    getChecklistOfThisCard();
   }, []);
   return (
     <li
@@ -117,13 +154,14 @@ const Card = ({
           name="cardTitle"
           value={cardTitle}
           onChange={(e) => setCardTitle(e.target.value)}
-          onClick={() =>
-            showModal({
+          onClick={ () =>
+             showModal({
               modalState: true,
               modalId: cardId,
               modalDesc: description,
               modalName: title,
               modalComments: comments,
+              modalCheckList: checkList,
             })
           }
           readOnly

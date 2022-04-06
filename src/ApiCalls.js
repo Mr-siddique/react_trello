@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const KEY = process.env.REACT_APP_API_KEY
+const KEY = process.env.REACT_APP_API_KEY;
 const TOKEN = process.env.REACT_APP_API_TOKEN;
 const fetchLists = () =>
   axios.get(
@@ -77,9 +77,34 @@ const deleteACard = (cardId) =>
     `https://api.trello.com/1/cards/${cardId}?key=${KEY}&token=${TOKEN}`
   );
 
-const swapCard = (cardId, listId,pos) =>
+const swapCard = (cardId, listId, pos) =>
   axios.put(
     `https://api.trello.com/1/cards/${cardId}?pos=${pos}&idList=${listId}&key=${KEY}&token=${TOKEN}`
+  );
+
+const getChecklist = (cardId) =>
+  axios.get(
+    `https://api.trello.com/1/cards/${cardId}/checklists?key=${KEY}&token=${TOKEN}`
+  );
+
+const addItemToCheckList = (checkListId, data) =>
+  axios.post(
+    `https://api.trello.com/1/checklists/${checkListId}/checkItems?name=${data}&key=${KEY}&token=${TOKEN}`
+  );
+
+const createACheckList = (cardId, value) =>
+  axios.post(
+    `https://api.trello.com/1/checklists?name=${value}&idCard=${cardId}&key=${KEY}&token=${TOKEN}`
+  );
+
+const deleteACheckList = (checkListId) =>
+  axios.delete(
+    `https://api.trello.com/1/checklists/${checkListId}?key=${KEY}&token=${TOKEN}`
+  );
+
+const updateItemOnCheckList = (cardId, itemId, value) =>
+  axios.put(
+    `https://api.trello.com/1/cards/${cardId}/checkItem/${itemId}?state=${value}&key=${KEY}&token=${TOKEN}`
   );
 
 export {
@@ -98,4 +123,9 @@ export {
   deleteComment,
   deleteACard,
   swapCard,
+  getChecklist,
+  addItemToCheckList,
+  createACheckList,
+  deleteACheckList,
+  updateItemOnCheckList,
 };

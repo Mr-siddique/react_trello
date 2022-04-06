@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { changeCardData, addComment } from "../ApiCalls";
+import { changeCardData, addComment,createACheckList } from "../ApiCalls";
 import Comment from "./Comment";
+import SingleCheckList from "./SingleCheckList";
 import "./Modal.css";
 
 const Modal = ({ modal, showModal }) => {
@@ -8,13 +9,23 @@ const Modal = ({ modal, showModal }) => {
   const [descReadOnly, toggleDescReadOnly] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [readOnly, setReadOnly] = useState(true);
-  const { modalName, modalDesc, modalComments, modalId, modalState } = modal;
+  const [checkListForm,showCheckListForm]=useState(false);
+  const [checkListTitle,setCheckListTitle]=useState('');
+  const {
+    modalName,
+    modalDesc,
+    modalComments,
+    modalId,
+    modalCheckList
+  } = modal;
+ 
   const handleChange = (e) => {
     showModal((prevModal) => ({
       ...prevModal,
       [e.target.name]: e.target.value,
     }));
   };
+
   const saveModalName = async (e) => {
     if (e.keyCode !== 13) return;
     try {
@@ -58,7 +69,23 @@ const Modal = ({ modal, showModal }) => {
       ),
     });
   };
+  const handleSubmit=async (e)=>{
+    e.preventDefault();
+    try{
+      const {data}=await createACheckList(modalId,checkListTitle);
+      showModal({...modal,modalCheckList:[...modal.modalCheckList,{checkListId:data.id,checkListItems:[],checkListName:data.name}]});
+      setCheckListTitle('');
+      showCheckListForm(false);
+    }catch(err){
+      console.log(err);
+    }
+  }
+  // {id: '624c3218a1166b6bbb3a7144', name: 'new checklist', idBoard: '6232b8ef11375219793f0db4', idCard: '6242ac27c8a85b4b1a2b77e4', pos: 49152, …}checkItems: []id: "624c3218a1166b6bbb3a7144"idBoard: "6232b8ef11375219793f0db4"idCard: "6242ac27c8a85b4b1a2b77e4"limits: {}name: "new checklist"pos: 49152[[Prototype]]: Object
 
+  // {checkListId: "624bf1fb1111bc1d62515db8",
+// checkListItems: Array(2),
+//  {name: 'first item', isCompleted: false}, {name: 'new Item', isCompleted: false},
+// checkListName: "Checklist"}
   return (
     <div className="modalContainer">
       <div className="modalContent">
@@ -112,6 +139,63 @@ const Modal = ({ modal, showModal }) => {
               </button>
             </div>
           )}
+        </div>
+        <div className="checkList" style={{}}>
+          <button
+            style={{
+              width: "200px",
+              height: "40px",
+              fontFamily: "inherit",
+              border: "none",
+              fontSize: "16px",
+              color: "black",
+              fontFamily: "inherit",
+              backgroundColor: "#EAECF0",
+              borderRadius: "5px",
+              marginBottom: "10px",
+            }}
+            onClick={()=>showCheckListForm(prevState=>!prevState)}
+          >
+            <i className="fa-solid fa-check"></i> Checklist
+          </button>
+          {
+            checkListForm&&(
+          <div
+            className="checkListInput"
+            style={{ width: "50%", backgroundColor: "#fff", padding: "10px" }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between"}}>
+              <p style={{ color: "gray", fontSize: "15px" }}>Add a checklist</p>
+
+              <button id="close" style={{ fontSize: "15px" }} onClick={()=>showCheckListForm(false)}>
+                x
+              </button>
+            </div>
+            <form style={{ display: "flex", flexDirection: "column" }} onSubmit={handleSubmit}>
+              <label
+                style={{ fontSize: "12px", color: "gray", marginBottom: "5px" }}
+              >
+                <strong>Title</strong>
+              </label>
+              <input
+                type="text"
+                name="checkList"
+                style={{
+                  height: "35px",
+                  border: "2px solid blue",
+                  marginBottom: "10px",
+                }}
+                value={checkListTitle}
+                onChange={(e)=>setCheckListTitle(e.target.value)}
+              />
+              <button id="add" type='submit'>Add</button>
+            </form>
+          </div>
+            )
+          }
+          {
+             modalCheckList.map((checkList)=><SingleCheckList checkList={checkList} modal={modal} showModal={showModal}/>)
+          }
         </div>
         <div className="activity">
           <h4>Activity</h4>

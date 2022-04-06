@@ -14,7 +14,9 @@ const App = () => {
     modalName: "",
     modalDesc: "",
     modalComments: [],
-  });
+    modalCheckList:[]
+    });
+  // console.log(modal);
   const getLists = async () => {
     try {
       const { data } = await fetchLists();
@@ -28,7 +30,7 @@ const App = () => {
   const handleDeleteList = async (listId) => {
     try {
       const { data } = await deleteAList(listId);
-      setLists((prevLists)=>prevLists.filter(list=>list.id!==data.id));
+      setLists((prevLists) => prevLists.filter((list) => list.id !== data.id));
     } catch (err) {
       console.log(err.message);
     }
@@ -90,7 +92,7 @@ const App = () => {
           </form>
         )}
       </div>
-      {modal.modalState && <Modal modal={modal} showModal={showModal} />}
+      {modal.modalState && <Modal modal={modal} showModal={showModal}/>}
     </div>
   );
 };
